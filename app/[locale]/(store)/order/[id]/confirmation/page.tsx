@@ -1,8 +1,8 @@
 /**
  * Mockup 03 — Confirmación tras pago con Payment Element embebido.
  *
- * La fase la define Prisma (Payment.status), no Stripe: hasta el webhook
- * (Día 11) mostramos "esperando confirmación" aunque Stripe haya cobrado.
+ * La fase la define Prisma (Payment.status). Si el webhook aún no llegó,
+ * reconciliamos contra el PaymentIntent en Stripe (mismo efecto, idempotente).
  * payment_intent en query sirve para una nota secundaria de progreso.
  */
 
@@ -15,6 +15,7 @@ import { redirect } from "@/i18n/navigation";
 import { getOrderForConfirmation } from "@/lib/checkout";
 import { formatOrderNumber } from "@/lib/order";
 import { getStripe } from "@/lib/stripe";
+import { reconcileStripePaymentForOrder } from "@/lib/stripe-webhook";
 import type { AppLocale } from "@/i18n/routing";
 import { pageTitle } from "@/lib/page-title";
 
@@ -54,6 +55,10 @@ export default async function OrderConfirmationPage({
     notFound();
   }
 
+  await reconcileStripePaymentForOrder(order.id, userId);
+  const confirmedOrder =
+    (await getOrderForConfirmation(id, userId)) ?? order;
+
   let stripePaymentOk = false;
 
   if (paymentIntentId) {
@@ -63,7 +68,7 @@ export default async function OrderConfirmationPage({
         await stripe.paymentIntents.retrieve(paymentIntentId);
 
       if (
-        paymentIntent.metadata?.orderId === order.id &&
+        paymentIntent.metadata?.orderId === confirmedOrder.id &&
         paymentIntent.metadata?.userId === userId &&
         paymentIntent.status === "succeeded"
       ) {
@@ -75,12 +80,12 @@ export default async function OrderConfirmationPage({
   }
 
   const phase =
-    order.payment?.status === "COMPLETED" ? "confirmed" : "awaiting";
+    confirmedOrder.payment?.status === "COMPLETED" ? "confirmed" : "awaiting";
 
   const t = await getTranslations("checkout.confirmation");
   const format = await getFormatter();
-  const orderNumber = formatOrderNumber(order.id);
-  const total = format.number(Number(order.total), {
+  const orderNumber = formatOrderNumber(confirmedOrder.id);
+  const total = format.number(Number(confirmedOrder.total), {
     style: "currency",
     currency: "MXN",
   });
@@ -88,7 +93,7 @@ export default async function OrderConfirmationPage({
   return (
     <div className="mx-auto w-full max-w-lg px-4 py-12 md:px-6 md:py-16">
       <OrderConfirmationPoller
-        orderId={order.id}
+        orderId={confirmedOrder.id}
         orderNumber={orderNumber}
         total={total}
         initialPhase={phase}

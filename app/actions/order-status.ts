@@ -7,6 +7,7 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { reconcileStripePaymentForOrder } from "@/lib/stripe-webhook";
 
 export type OrderConfirmationPhase = "awaiting" | "confirmed" | "failed";
 
@@ -36,6 +37,23 @@ export async function getOrderConfirmationPhase(
   }
 
   if (payment.status === "FAILED") {
+    return "failed";
+  }
+
+  await reconcileStripePaymentForOrder(orderId, userId);
+
+  const synced = await prisma.payment.findFirst({
+    where: {
+      order: { id: orderId, userId },
+    },
+    select: { status: true },
+  });
+
+  if (synced?.status === "COMPLETED") {
+    return "confirmed";
+  }
+
+  if (synced?.status === "FAILED") {
     return "failed";
   }
 

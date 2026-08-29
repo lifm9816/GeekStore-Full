@@ -2,10 +2,15 @@
  * Handlers del webhook Stripe (Día 11).
  * Busca Payment por externalId (= PaymentIntent id guardado en finalizeCheckoutPayment).
  * Idempotente: reintentos de Stripe no duplican updates ni descuentos de stock.
+ *
+ * reconcileStripePaymentForOrder cubre el caso en que el webhook de producción
+ * no llega (secret de stripe listen, destino mal configurado, delay): si el
+ * PaymentIntent ya está succeeded en Stripe, aplica el mismo efecto.
  */
 
 import type Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+import { getStripe } from "@/lib/stripe";
 
 export async function handlePaymentIntentSucceeded(
   paymentIntent: Stripe.PaymentIntent,
@@ -84,4 +89,47 @@ export async function handlePaymentIntentFailed(
     where: { id: payment.id },
     data: { status: "FAILED" },
   });
+}
+
+/** Consulta Stripe y, si ya cobró, marca Payment/Order como el webhook. */
+export async function reconcileStripePaymentForOrder(
+  orderId: string,
+  userId: string,
+) {
+  const payment = await prisma.payment.findFirst({
+    where: {
+      provider: "STRIPE",
+      order: { id: orderId, userId },
+    },
+    select: { status: true, externalId: true },
+  });
+
+  if (!payment?.externalId) {
+    return;
+  }
+
+  if (payment.status === "COMPLETED" || payment.status === "FAILED") {
+    return;
+  }
+
+  try {
+    const paymentIntent = await getStripe().paymentIntents.retrieve(
+      payment.externalId,
+    );
+
+    if (
+      paymentIntent.metadata?.orderId !== orderId ||
+      paymentIntent.metadata?.userId !== userId
+    ) {
+      return;
+    }
+
+    if (paymentIntent.status === "succeeded") {
+      await handlePaymentIntentSucceeded(paymentIntent);
+    } else if (paymentIntent.status === "canceled") {
+      await handlePaymentIntentFailed(paymentIntent);
+    }
+  } catch (error) {
+    console.warn("[stripe] reconcile falló:", error);
+  }
 }
