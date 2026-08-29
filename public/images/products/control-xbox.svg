@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Control inalámbrico Xbox">
+  <rect width="800" height="1000" fill="#0B0B0B"/>
+  <rect y="0" width="800" height="12" fill="#107C10"/>
+  <text x="400" y="460" text-anchor="middle" fill="#107C10" font-family="Arial, sans-serif" font-size="42" font-weight="700">XBOX</text>
+  <text x="400" y="530" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="36" font-weight="700">Control inalámbrico</text>
+</svg>

@@ -1,0 +1,8 @@
+/* Fuente Geist para Stripe Payment Element (iframe aislado — no hereda del documento). */
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

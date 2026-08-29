@@ -1,0 +1,85 @@
+.gs-robot-rise {
+  animation: gs-robot-rise 5s ease-in-out infinite;
+  transform-box: view-box;
+  transform-origin: 340px 300px;
+}
+
+.gs-robot-look {
+  animation: gs-robot-look 5s ease-in-out infinite;
+  transform-box: view-box;
+  transform-origin: 340px 245px;
+}
+
+.gs-robot-question {
+  animation: gs-robot-question 5s ease-in-out infinite;
+}
+
+@keyframes gs-robot-rise {
+  0% {
+    transform: translateY(70px);
+  }
+  15% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(0);
+  }
+  90% {
+    transform: translateY(70px);
+  }
+  100% {
+    transform: translateY(70px);
+  }
+}
+
+@keyframes gs-robot-look {
+  0%,
+  15% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(-10deg);
+  }
+  45% {
+    transform: rotate(10deg);
+  }
+  58%,
+  75%,
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes gs-robot-question {
+  0%,
+  58% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  66% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  85%,
+  100% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-robot-rise,
+  .gs-robot-look {
+    animation: none;
+  }
+
+  .gs-robot-question {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

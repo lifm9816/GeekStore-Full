@@ -1,26 +1,146 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--gs-bg);
+  --foreground: var(--gs-text);
+  --font-geist-sans: "Geist", Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Geist Mono", ui-monospace, monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-gs-bg: var(--gs-bg);
+  --color-gs-header: var(--gs-header);
+  --color-gs-surface: var(--gs-surface);
+  --color-gs-surface-2: var(--gs-surface-2);
+  --color-gs-accent: var(--gs-accent);
+  --color-gs-accent-hover: var(--gs-accent-hover);
+  --color-gs-accent-strong: var(--gs-accent-strong);
+  --color-gs-text: var(--gs-text);
+  --color-gs-muted: var(--gs-muted);
+  --color-gs-on-header: var(--gs-nav-muted);
+  --color-gs-border: var(--gs-border);
+  --color-gs-input-bg: var(--gs-input-bg);
+  --color-gs-critical: #ff6b6b;
+  --color-gs-warning: #ffc24d; /* mockup 12: aviso de tope de stock */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  --gs-bg: #19222d;
+  --gs-header: #0e141a;
+  --gs-surface: #0e141a;
+  --gs-surface-2: #141d27;
+  --gs-accent: #94d32e;
+  --gs-accent-hover: #7cb226;
+  --gs-accent-strong: #b4ff4d;
+  --gs-text: #ffffff;
+  --gs-muted: #7a94ad;
+  --gs-border: rgb(122 148 173 / 0.18);
+  --gs-nav-muted: #7a94ad;
+  --gs-nav-on-fab: #0e141a;
+  --gs-input-bg: #19222d;
+}
+
+[data-theme="light"] {
+  --gs-bg: #d9d9d9;
+  --gs-header: #19222d;
+  --gs-surface: #ffffff;
+  /* Secundario claro (hover, pills, tabs inactivas) — no usar tonos del tema oscuro. */
+  --gs-surface-2: #ececec;
+  --gs-accent: #ff914d;
+  --gs-accent-hover: #e08044;
+  --gs-accent-strong: #ff914d;
+  --gs-text: #19222d;
+  --gs-muted: #5c6773;
+  --gs-border: rgb(25 34 45 / 0.18);
+  --gs-nav-muted: #d9d9d9;
+  --gs-nav-on-fab: #19222d;
+  --gs-input-bg: #f3f3f3;
+}
+
+html {
+  background: var(--gs-bg);
+  color: var(--gs-text);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--gs-bg);
+  color: var(--gs-text);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+[data-theme="light"] .logo-dark,
+[data-theme="dark"] .logo-light {
+  display: none;
+}
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+[role="button"],
+a,
+label[for],
+select,
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+[type="button"]:disabled,
+[type="submit"]:disabled,
+[type="reset"]:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+input,
+textarea,
+select {
+  color: var(--gs-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--gs-muted);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--gs-text);
+  caret-color: var(--gs-text);
+  transition: background-color 99999s ease-out 0s;
+  box-shadow: 0 0 0 1000px var(--gs-input-bg) inset;
+}
+
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
